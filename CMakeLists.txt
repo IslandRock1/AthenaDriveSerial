@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(AthenaDriveSerial)
-
-set(CMAKE_CXX_STANDARD 20)
+project(AthenaDriveSerial VERSION 1.0.0 LANGUAGES CXX)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -11,5 +9,15 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(serial_cpp)
 
-add_executable(AthenaDriveSerial main.cpp SerialComm.cpp)
-target_link_libraries(AthenaDriveSerial PRIVATE serial_cpp::serial_cpp)
+add_library(SerialComm src/SerialComm.cpp)
+target_link_libraries(SerialComm PUBLIC serial_cpp)
+target_include_directories(SerialComm
+        PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+)
+
+target_compile_features(SerialComm PUBLIC cxx_std_20)
+add_library(SerialComm::SerialComm ALIAS SerialComm)
+
+add_subdirectory(examples)

@@ -1,6 +1,6 @@
 #include <iostream>
 #include <chrono>
-#include "SerialComm.hpp"
+#include "../include/SerialComm/SerialComm.hpp"
 
 int main() {
     SerialComm serialComm("COM3");

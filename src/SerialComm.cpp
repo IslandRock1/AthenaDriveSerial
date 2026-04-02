@@ -1,4 +1,4 @@
-#include "SerialComm.hpp"
+#include "SerialComm/SerialComm.hpp"
 #include <iostream>
 #include <stdexcept>
 
