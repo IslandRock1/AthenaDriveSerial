@@ -9,13 +9,14 @@
 #pragma pack(push, 1)
 struct SensorData {
 	uint32_t iteration;
-	uint32_t timestamp_ms;
+	uint32_t timestampMS;
 	float position;
 	float velocity;
+	float torque;
 };
 
 struct Command {
-	uint8_t command_type;
+	uint8_t commandType;
 	int32_t value0;
 	float value1;
 };
