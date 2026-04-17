@@ -12,13 +12,15 @@ PYBIND11_MODULE(SerialCommPython, m) {
 	py::class_<SensorData>(m, "SensorData")
 		.def(py::init<>())
 		.def_readwrite("iteration", &SensorData::iteration)
-		.def_readwrite("timestamp_ms", &SensorData::timestamp_ms)
+		.def_readwrite("timestamp_ms", &SensorData::timestampMS)
 		.def_readwrite("position", &SensorData::position)
-		.def_readwrite("velocity", &SensorData::velocity);
+		.def_readwrite("velocity", &SensorData::velocity)
+		.def_readwrite("torque", &SensorData::torque)
+		.def_readwrite("current", &SensorData::current);
 
 	py::class_<Command>(m, "Command")
 		.def(py::init<>())
-		.def_readwrite("command_type", &Command::command_type)
+		.def_readwrite("command_type", &Command::commandType)
 		.def_readwrite("value0", &Command::value0)
 		.def_readwrite("value1", &Command::value1);
 
