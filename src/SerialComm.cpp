@@ -1,64 +1,103 @@
 #include "SerialComm/SerialComm.hpp"
 #include <iostream>
 #include <stdexcept>
+#include <chrono>
 
 SerialComm::SerialComm(const std::string &port_name,
 					   uint32_t baudrate,
 					   uint32_t timeout_ms) {
-	m_port.setPort(port_name);
-	m_port.setBaudrate(baudrate);
+	_m_port.setPort(port_name);
+	_m_port.setBaudrate(baudrate);
 
 	auto timeOutVal = serial_cpp::Timeout::simpleTimeout(timeout_ms);
-	m_port.setTimeout(timeOutVal);
-	m_port.open();
+	_m_port.setTimeout(timeOutVal);
+	_m_port.open();
 
-	if (!m_port.isOpen()) {
+	if (!_m_port.isOpen()) {
 		throw std::runtime_error("Failed to open serial port: " + port_name);
 	}
+
+	_serialThread = std::jthread{&SerialComm::update, this};
 }
 
 SerialComm::~SerialComm() {
-	if (m_port.isOpen()) {
-		m_port.close();
+	_stopFlag = true;
+
+	if (_serialThread.joinable()) {
+		_serialThread.join();
+	}
+
+	if (_m_port.isOpen()) {
+		_m_port.close();
 	}
 }
 
-bool SerialComm::sendData(const Command &cmd) {
-	size_t written = m_port.write(
-		reinterpret_cast<const uint8_t *>(&cmd), sizeof(Command));
+void SerialComm::setData(const Command &cmd) {
+	_newestDataSent = false;
+	std::lock_guard<std::mutex> lock(_outgoingMutex);
+	_cmd = cmd;
+}
+
+bool SerialComm::hasSentData() {
+	return _newestDataSent;
+}
+
+
+bool SerialComm::getData(SensorData &data) {
+	std::lock_guard<std::mutex> lock(_incomingMutex);
+	if (!_m_has_data) return false;
+	data = _m_rx_data;
+	return true;
+}
+
+void SerialComm::readData() {
+	static uint8_t byte;
+
+	if (_m_port.read(&byte, 1) != 1) return;
+	if (byte != SYNC_BYTE_0) return;
+
+	if (_m_port.read(&byte, 1) != 1) return;
+	if (byte != SYNC_BYTE_1) return;
+
+	// Sync found — read the payload into the cache
+	uint8_t buffer[sizeof(SensorData)];
+	if (_m_port.read(buffer, sizeof(SensorData)) != sizeof(SensorData)) {
+		if (_debugPrint) {
+			std::cout << "Found sync bytes, but could not read complete sensordata. In SerialComm::update.\n";
+		}
+	} else {
+		std::lock_guard<std::mutex> lock(_incomingMutex);
+		std::memcpy(&_m_rx_data, buffer, sizeof(SensorData));
+		_m_has_data = true;
+	}
+}
+
+void SerialComm::writeData() {
+	std::lock_guard<std::mutex> lock(_outgoingMutex);
+	size_t written = _m_port.write(
+	reinterpret_cast<const uint8_t *>(&_cmd), sizeof(Command));
 
 	if (written != sizeof(Command)) {
 		std::cerr << "SerialComm: failed to send full command (sent "
 				  << written << " of " << sizeof(Command) << " bytes)\n";
-		return false;
+	} else {
+		_newestDataSent = true;
 	}
-	return true;
 }
 
-bool SerialComm::getData(SensorData &data) const {
-	if (!m_has_data) return false;
-	data = m_rx_data;
-	return true;
-}
+void SerialComm::update() {
+	auto prevSend = std::chrono::high_resolution_clock::now();
+	while (!_stopFlag) {
+		readData();
 
-bool SerialComm::update() {
-	uint8_t byte;
+		auto timeNow = std::chrono::high_resolution_clock::now();
+		auto durationSinceWrite = std::chrono::duration_cast<std::chrono::microseconds>(timeNow - prevSend).count();
 
-	// Scan for sync header 0xAA 0x55
-	while (true) {
-		if (m_port.read(&byte, 1) != 1) return false;
-		if (byte != SYNC_BYTE_0) continue;
-
-		if (m_port.read(&byte, 1) != 1) return false;
-		if (byte != SYNC_BYTE_1) continue;
-
-		// Sync found — read the payload into the cache
-		uint8_t buffer[sizeof(SensorData)];
-		if (m_port.read(buffer, sizeof(SensorData)) != sizeof(SensorData)) {
-			return false;
+		// Using 10.107ms in the hopes that it wont sync up with esp.
+		// Would probably be fine.. but idk.
+		if (durationSinceWrite > 10107) {
+			prevSend = timeNow;
+			writeData();
 		}
-		std::memcpy(&m_rx_data, buffer, sizeof(SensorData));
-		m_has_data = true;
-		return true;
 	}
 }

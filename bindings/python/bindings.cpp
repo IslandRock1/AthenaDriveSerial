@@ -3,6 +3,7 @@
 #include <pybind11/stl.h>
 
 #include "SerialComm/SerialComm.hpp"
+#include "SerialComm/SerialConfig.hpp"
 
 namespace py = pybind11;
 
@@ -12,15 +13,17 @@ PYBIND11_MODULE(SerialCommPython, m) {
 	py::class_<SensorData>(m, "SensorData")
 		.def(py::init<>())
 		.def_readwrite("iteration", &SensorData::iteration)
-		.def_readwrite("timestamp_ms", &SensorData::timestampMS)
+		.def_readwrite("timestamp_ms", &SensorData::timestamp_ms)
 		.def_readwrite("position", &SensorData::position)
 		.def_readwrite("velocity", &SensorData::velocity)
 		.def_readwrite("torque", &SensorData::torque)
-		.def_readwrite("current", &SensorData::current);
+		.def_readwrite("current", &SensorData::current)
+		.def_readwrite("loopTimeMotor", &SensorData::loopTimeMotor)
+		.def_readwrite("loopTimeSerial", &SensorData::loopTimeSerial);
 
 	py::class_<Command>(m, "Command")
 		.def(py::init<>())
-		.def_readwrite("command_type", &Command::commandType)
+		.def_readwrite("command_type", &Command::command_type)
 		.def_readwrite("value0", &Command::value0)
 		.def_readwrite("value1", &Command::value1);
 
@@ -30,16 +33,14 @@ PYBIND11_MODULE(SerialCommPython, m) {
 			 py::arg("baudrate") = 115200,
 			 py::arg("timeout_ms") = 1000)
 
-		// sendData: straightforward
-		.def("send_data", &SerialComm::sendData,
+		.def("send_data", &SerialComm::setData,
 			 py::arg("cmd"))
 
-		// update: straightforward
-		.def("update", &SerialComm::update)
+		.def("has_sent_data", &SerialComm::hasSentData)
 
 		// getData: wrap output parameter → return tuple
 		.def("get_data",
-			[](const SerialComm &self) {
+			[](SerialComm &self) {
 				SensorData data;
 				bool success = self.getData(data);
 				return py::make_tuple(success, data);
