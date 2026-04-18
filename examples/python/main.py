@@ -5,7 +5,7 @@ from SerialCommPython import SerialComm, SensorData, Command
 import pg_widgets as pw
 
 def main():
-    serialComm = SerialComm("COM3", 460800)
+    serialComm = SerialComm("COM4", 460800)
     controlManager = pw.ControlManager()
 
     plotPos = pw.Plot((0.0, 0.0), (0.5, 0.33))
@@ -36,30 +36,35 @@ def main():
         labels=labels, lower_bounds=lower_bounds, upper_bounds=upper_bounds, current_values=current_vals)
 
     cmd = Command()
+    prevSendTime = perf_counter()
     while controlManager.isRunning():
+        if (perf_counter() - prevSendTime > 0.1):
+            prevSendTime = perf_counter()
+            values = controlManager["tuningSlider"].getValue()
+            for ix, v in enumerate(values):
+                cmd.command_type = ix + 1
+                cmd.value1 = v
+                serialComm.send_data(cmd)
 
-        values = controlManager["tuningSlider"].getValue()
-        for ix, v in enumerate(values):
-            cmd.command_type = ix + 1
-            cmd.value1 = v
-            serialComm.send_data(cmd)
+        didGetData, prevData = serialComm.get_data()
 
-        gotData, data = serialComm.get_data()
-        if (gotData):
+        if (didGetData):
             data: SensorData
             texts = []
-            texts.append(f"Position: {data.position}")
-            texts.append(f"Velocity: {data.velocity}")
-            texts.append(f"Torque: {data.torque}")
-            texts.append(f"Current: {data.current}")
+            texts.append(f"Position: {prevData.position:.3f}")
+            texts.append(f"Velocity: {prevData.velocity:.3f}")
+            texts.append(f"Torque: {prevData.torque:.3f}")
+            texts.append(f"Current: {prevData.current:.3f}")
             controlManager["sensorText"].setTexts(texts)
 
             currTime = perf_counter()
-            controlManager["plotPos"].addValue(currTime, data.position, maxLength=1000)
-            controlManager["plotVel"].addValue(currTime, data.velocity, maxLength=1000)
-            controlManager["plotCurrent"].addValue(currTime, data.current, maxLength=1000)
+            controlManager["plotPos"].addValue(currTime, prevData.position, maxLength=1000)
+            controlManager["plotVel"].addValue(currTime, prevData.velocity, maxLength=1000)
+            controlManager["plotCurrent"].addValue(currTime, prevData.current, maxLength=1000)
 
-        serialComm.update()
+        renderTime = controlManager.getRenderTime()
+        print(f"Rendertime: {renderTime}")
         controlManager.update()
+        serialComm.update()
 
 if __name__ == "__main__": main()
