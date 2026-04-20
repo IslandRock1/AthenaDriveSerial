@@ -81,9 +81,9 @@ def generateTab(name):
 
 def generateMainTab(name):
     gr = pw.UIGroup((0.0, 0.0), (1.0, 1.0))
-    gr["plotPos"] = getPlotPos()
-    gr["plotVel"] = getPlotVel()
-    gr["plotCurrent"] = getPlotCurrent()
+    gr[f"{name}plotPos"] = getPlotPos()
+    gr[f"{name}plotVel"] = getPlotVel()
+    gr[f"{name}plotCurrent"] = getPlotCurrent()
 
     descriptionBoxes, dataBoxes = getTextBoxesDriverData()
     gr["textBoxesDescription"] = descriptionBoxes
@@ -137,7 +137,7 @@ def main():
                 controlManager["MaintextBoxesData"].setTexts(texts)
 
                 timeNow = round(perf_counter() - baseTime, 2)
-                for name in ["Position", "Velocity", "Torque"]:
+                for name in ["Main", "Position", "Velocity", "Torque"]:
                     numPoints = 100
                     controlManager[f"{name}plotPos"].addValue(timeNow, data.position, maxLength=numPoints)
                     controlManager[f"{name}plotVel"].addValue(timeNow, data.velocity, maxLength=numPoints)
