@@ -22,7 +22,10 @@ PYBIND11_MODULE(SerialCommPython, m) {
 		.def_readwrite("loopTimeSerial", &SensorData::loopTimeSerial);
 
 	py::class_<Command>(m, "Command")
-		.def(py::init<>())
+		.def(py::init<uint8_t, int32_t, float>(),
+			py::arg("command_type") = 0,
+			py::arg("value0") = 0,
+			py::arg("value1") = 0)
 		.def_readwrite("command_type", &Command::command_type)
 		.def_readwrite("value0", &Command::value0)
 		.def_readwrite("value1", &Command::value1);
@@ -36,17 +39,18 @@ PYBIND11_MODULE(SerialCommPython, m) {
 
 	py::enum_<CommandType>(m, "CommandType")
 		.value("NoCommand", CommandType::NoCommand)
+		.value("TorqueSetpoint", CommandType::TorqueSetpoint)
 		.value("TorqueKp", CommandType::TorqueKp)
 		.value("TorqueKi", CommandType::TorqueKi)
+		.value("TorqueKd", CommandType::TorqueKd)
+		.value("VelocitySetpoint", CommandType::VelocitySetpoint)
 		.value("VelocityKp", CommandType::VelocityKp)
 		.value("VelocityKi", CommandType::VelocityKi)
 		.value("VelocityKd", CommandType::VelocityKd)
+		.value("PositionSetpoint", CommandType::PositionSetpoint)
 		.value("PositionKp", CommandType::PositionKp)
 		.value("PositionKi", CommandType::PositionKi)
 		.value("PositionKd", CommandType::PositionKd)
-		.value("TorqueSetpoint", CommandType::TorqueSetpoint)
-		.value("VelocitySetpoint", CommandType::VelocitySetpoint)
-		.value("PositionSetpoint", CommandType::PositionSetpoint)
 		.value("DrivingModeCommand", CommandType::DrivingModeCommand);
 
 	py::class_<SerialComm>(m, "SerialComm")
@@ -57,6 +61,8 @@ PYBIND11_MODULE(SerialCommPython, m) {
 
 		.def("send_data", &SerialComm::sendData,
 			 py::arg("cmd"))
+
+		.def("num_remaining_commands", &SerialComm::getNumRemainingCommands)
 
 		// getData: wrap output parameter -> return tuple
 		.def("get_data",
