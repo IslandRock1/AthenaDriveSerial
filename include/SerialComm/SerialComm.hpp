@@ -1,11 +1,11 @@
 #pragma once
 
 #include <cstdint>
-#include <cstring>
 #include <string>
 #include <thread>
 #include <mutex>
 #include <atomic>
+#include <queue>
 #include <serial_cpp/serial.h>
 #include "SerialConfig.hpp"
 
@@ -16,9 +16,9 @@ public:
 						uint32_t timeout_ms    = 1000);
 
 	~SerialComm();
-	void setData(const Command &cmd);
-	bool hasSentData();
+	void sendData(const Command &cmd);
 	bool getData(SensorData &data);
+	unsigned long long getNumRemainingCommands();
 
 private:
 	static constexpr uint8_t SYNC_BYTE_0 = 0xAA;
@@ -32,10 +32,9 @@ private:
 	std::jthread _serialThread;
 	std::atomic_bool _stopFlag = false;
 	std::atomic_bool _debugPrint = false;
-	std::atomic_bool _newestDataSent = false;
 
 	serial_cpp::Serial _m_port;
-	Command _cmd{};
+	std::queue<Command> _commands;
 	SensorData _m_rx_data{};
 	bool _m_has_data = false;
 };

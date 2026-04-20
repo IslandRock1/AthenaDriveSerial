@@ -27,21 +27,41 @@ PYBIND11_MODULE(SerialCommPython, m) {
 		.def_readwrite("value0", &Command::value0)
 		.def_readwrite("value1", &Command::value1);
 
+	py::enum_<DrivingMode>(m, "DrivingMode")
+		.value("Disabled", DrivingMode::Disabled)
+		.value("Torque", DrivingMode::Torque)
+		.value("Velocity", DrivingMode::Velocity)
+		.value("Position", DrivingMode::Position);
+
+
+	py::enum_<CommandType>(m, "CommandType")
+		.value("NoCommand", CommandType::NoCommand)
+		.value("TorqueKp", CommandType::TorqueKp)
+		.value("TorqueKi", CommandType::TorqueKi)
+		.value("VelocityKp", CommandType::VelocityKp)
+		.value("VelocityKi", CommandType::VelocityKi)
+		.value("VelocityKd", CommandType::VelocityKd)
+		.value("PositionKp", CommandType::PositionKp)
+		.value("PositionKi", CommandType::PositionKi)
+		.value("PositionKd", CommandType::PositionKd)
+		.value("TorqueSetpoint", CommandType::TorqueSetpoint)
+		.value("VelocitySetpoint", CommandType::VelocitySetpoint)
+		.value("PositionSetpoint", CommandType::PositionSetpoint)
+		.value("DrivingModeCommand", CommandType::DrivingModeCommand);
+
 	py::class_<SerialComm>(m, "SerialComm")
 		.def(py::init<const std::string&, uint32_t, uint32_t>(),
 			 py::arg("port_name"),
 			 py::arg("baudrate") = 115200,
 			 py::arg("timeout_ms") = 1000)
 
-		.def("send_data", &SerialComm::setData,
+		.def("send_data", &SerialComm::sendData,
 			 py::arg("cmd"))
 
-		.def("has_sent_data", &SerialComm::hasSentData)
-
-		// getData: wrap output parameter → return tuple
+		// getData: wrap output parameter -> return tuple
 		.def("get_data",
 			[](SerialComm &self) {
-				SensorData data;
+				SensorData data{};
 				bool success = self.getData(data);
 				return py::make_tuple(success, data);
 			}

@@ -32,22 +32,21 @@ SerialComm::~SerialComm() {
 	}
 }
 
-void SerialComm::setData(const Command &cmd) {
-	_newestDataSent = false;
+void SerialComm::sendData(const Command &cmd) {
 	std::lock_guard<std::mutex> lock(_outgoingMutex);
-	_cmd = cmd;
+	_commands.push(cmd);
 }
-
-bool SerialComm::hasSentData() {
-	return _newestDataSent;
-}
-
 
 bool SerialComm::getData(SensorData &data) {
 	std::lock_guard<std::mutex> lock(_incomingMutex);
 	if (!_m_has_data) return false;
 	data = _m_rx_data;
 	return true;
+}
+
+unsigned long long SerialComm::getNumRemainingCommands() {
+	std::lock_guard<std::mutex> lock(_outgoingMutex);
+	return _commands.size();
 }
 
 void SerialComm::readData() {
@@ -74,6 +73,9 @@ void SerialComm::readData() {
 
 void SerialComm::writeData() {
 	std::lock_guard<std::mutex> lock(_outgoingMutex);
+	if (_commands.empty()) { return; }
+	Command _cmd = _commands.front();
+
 	size_t written = _m_port.write(
 	reinterpret_cast<const uint8_t *>(&_cmd), sizeof(Command));
 
@@ -81,7 +83,7 @@ void SerialComm::writeData() {
 		std::cerr << "SerialComm: failed to send full command (sent "
 				  << written << " of " << sizeof(Command) << " bytes)\n";
 	} else {
-		_newestDataSent = true;
+		_commands.pop();
 	}
 }
 

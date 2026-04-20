@@ -31,5 +31,15 @@ enum DrivingMode {
 enum CommandType {
 	NoCommand = 0,
 	TorqueKp = 1,
-	TorqueKi = 2
+	TorqueKi = 2,
+	VelocityKp = 3,
+	VelocityKi = 4,
+	VelocityKd = 5,
+	PositionKp = 6,
+	PositionKi = 7,
+	PositionKd = 8,
+	TorqueSetpoint = 9,
+	VelocitySetpoint = 10,
+	PositionSetpoint = 11,
+	DrivingModeCommand = 12
 };
