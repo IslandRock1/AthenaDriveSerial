@@ -45,8 +45,8 @@ def getTuningSliders(name):
     lower_bounds = [0.0] * 4
     current_vals = [0.0] * 4
     if (name == "Position"):
-        upper_bounds = [-10.0, 0.0, 0.0, 0.0]
-        lower_bounds = [10.0, 5.0, 0.0, 0.0]
+        upper_bounds = [0.0, 0.0, 0.0, 0.0]
+        lower_bounds = [3.1415926 / 2.0, 5.0, 0.0, 0.0]
         current_vals = [0.0, 0.000, 0.000000, 0.0]
     elif (name == "Velocity"):
         upper_bounds = [-150.0, 0.0, 0.0, 0.0]
@@ -106,6 +106,7 @@ def main():
     enableSerial = True
 
     if enableSerial: serialComm = SerialComm("COM6", 460800)
+    if enableSerial: serialComm.send_data(Command(CommandType.SetCurrentLimit_mA, 10000))
     controlManager = pw.ControlManager()
 
     mainTab = generateMainTab("Main")
@@ -115,6 +116,7 @@ def main():
     tabs = pw.Tab((0.0, 0.0), (1.0, 1.0), [mainTab, posTab, velTab, torTab])
     controlManager["tabs"] = tabs
 
+    setpoints = {"Position": 0.0, "Velocity": 0.0}
     prevValues = {}
     baseTime = perf_counter()
     def getIfDelta(name, value):
@@ -143,6 +145,9 @@ def main():
                     controlManager[f"{name}plotVel"].addValue(timeNow, data.velocity, maxLength=numPoints)
                     controlManager[f"{name}plotCurrent"].addValue(timeNow, data.current, maxLength=numPoints)
 
+                    controlManager[f"{name}plotPos"].addValue(timeNow, setpoints["Position"], 1, maxLength=numPoints)
+                    controlManager[f"{name}plotVel"].addValue(timeNow, setpoints["Velocity"], 1, maxLength=numPoints)
+
 
         togNames = ["togglePos", "toggleVel", "toggleTor"]
         commandValues = [DrivingMode.Position, DrivingMode.Velocity, DrivingMode.Torque]
@@ -156,9 +161,11 @@ def main():
 
         for tuningName, baseCommand in zip(["Position", "Velocity", "Torque"], [CommandType.PositionSetpoint, CommandType.VelocitySetpoint, CommandType.TorqueSetpoint]):
             values = controlManager[tuningName + "TuningSliders"].getValue()
+            setpoints[tuningName] = values[0]
             # Setpoint, Kp, Ki, Kd (no Kd for torque)
             for ix in range(4):
                 v = values[ix]
+
                 if getIfDelta(f"{tuningName}{ix}", v):
                     cmd = Command(baseCommand.value + ix, 0, v)
                     print(f"Sending {v} to {baseCommand.value + ix}")

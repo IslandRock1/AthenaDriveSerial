@@ -18,6 +18,7 @@ PYBIND11_MODULE(SerialCommPython, m) {
 		.def_readwrite("velocity", &SensorData::velocity)
 		.def_readwrite("torque", &SensorData::torque)
 		.def_readwrite("current", &SensorData::current)
+		.def_readwrite("voltage", &SensorData::voltage)
 		.def_readwrite("loopTimeMotor", &SensorData::loopTimeMotor)
 		.def_readwrite("loopTimeSerial", &SensorData::loopTimeSerial);
 
@@ -51,7 +52,8 @@ PYBIND11_MODULE(SerialCommPython, m) {
 		.value("PositionKp", CommandType::PositionKp)
 		.value("PositionKi", CommandType::PositionKi)
 		.value("PositionKd", CommandType::PositionKd)
-		.value("DrivingModeCommand", CommandType::DrivingModeCommand);
+		.value("DrivingModeCommand", CommandType::DrivingModeCommand)
+		.value("SetCurrentLimit_mA", CommandType::SetCurrentLimit);
 
 	py::class_<SerialComm>(m, "SerialComm")
 		.def(py::init<const std::string&, uint32_t, uint32_t>(),
