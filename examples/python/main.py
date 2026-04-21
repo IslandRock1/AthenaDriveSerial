@@ -49,8 +49,8 @@ def getTuningSliders(name):
         lower_bounds = [10.0, 5.0, 0.0, 0.0]
         current_vals = [0.0, 0.000, 0.000000, 0.0]
     elif (name == "Velocity"):
-        upper_bounds = [-30.0, 0.0, 0.0, 0.0]
-        lower_bounds = [30.0, 0.1, 0.000001, 0.0]
+        upper_bounds = [-150.0, 0.0, 0.0, 0.0]
+        lower_bounds = [150.0, 0.1, 0.000001, 0.0]
         current_vals = [0.0, 0.03, 0.000000, 0.0]
     elif (name == "Torque"):
         upper_bounds = [-0.5, 0.0, 0.0, 0.0]
@@ -105,7 +105,7 @@ def generateMainTab(name):
 def main():
     enableSerial = True
 
-    if enableSerial: serialComm = SerialComm("COM3", 460800)
+    if enableSerial: serialComm = SerialComm("COM6", 460800)
     controlManager = pw.ControlManager()
 
     mainTab = generateMainTab("Main")
@@ -138,7 +138,7 @@ def main():
 
                 timeNow = round(perf_counter() - baseTime, 2)
                 for name in ["Main", "Position", "Velocity", "Torque"]:
-                    numPoints = 100
+                    numPoints = 1000
                     controlManager[f"{name}plotPos"].addValue(timeNow, data.position, maxLength=numPoints)
                     controlManager[f"{name}plotVel"].addValue(timeNow, data.velocity, maxLength=numPoints)
                     controlManager[f"{name}plotCurrent"].addValue(timeNow, data.current, maxLength=numPoints)
