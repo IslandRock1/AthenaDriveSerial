@@ -4,9 +4,11 @@
 #include "SerialComm/SerialComm.hpp"
 
 int main() {
-    SerialComm serialComm("/dev/ttyACM0");
+    // SerialComm serialComm("/dev/ttyACM0");
+    SerialComm serialComm("COM6");
     std::cout << "Connected. Receiving data from ESP32...\n";
 
+    SensorData data;
     Command cmd{CommandType::TorqueSetpoint, 0, 0.0};
     serialComm.sendData(cmd);
 
@@ -30,6 +32,9 @@ int main() {
             cmd.value1 = torque;
             serialComm.sendData(cmd);
         }
+
+        serialComm.getData(data);
+        std::cout << "Iteration: " << data.iteration << " | Position: " << data.position << std::endl;
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
