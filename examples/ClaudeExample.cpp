@@ -51,7 +51,7 @@ int main() {
         // Send a new setpoint every 50 ms
         if (msSinceSend >= 50) {
             prevSendTime = now;
-            cmd.value1 = static_cast<float>(10.0 * std::sin(t));  // ±3 rad/s sine wave
+            cmd.value1 = static_cast<float>(10.0 * std::sin(t));  // ±10 rad/s sine wave
             serialComm.sendData(cmd);
             std::cout << "Sent velocity setpoint: " << cmd.value1 << " rad/s"
                       << "  (buffer: " << serialComm.getNumRemainingCommands() << ")\n";
