@@ -28,8 +28,8 @@ def getPlotCurrent():
 def getTextBoxesDriverData():
     labelsDescription = [
         "Iteration",
-        "Timestamps (ms): ",
-        "Position: ", "Velocity: ", "Torque: ", "Current: ",
+        "Timestamps (us): ",
+        "Position (rad): ", "Velocity (rad/s): ", "Torque: ", "Current (mA): ", "Voltage (mV): ",
         "Loop Motor (us): ",
         "Loop Comm (us): "
     ]
@@ -53,8 +53,8 @@ def getTuningSliders(name):
         lower_bounds = [150.0, 0.1, 0.000001, 0.0]
         current_vals = [0.0, 0.03, 0.000000, 0.0]
     elif (name == "Torque"):
-        upper_bounds = [-0.5, 0.0, 0.0, 0.0]
-        lower_bounds = [0.5, 0.005, 0.0, 0.0]
+        upper_bounds = [-1.0, 0.0, 0.0, 0.0]
+        lower_bounds = [1.0, 0.005, 0.0, 0.0]
         current_vals = [0.0, 0.000, 0.000000, 0.0]
 
     slider = pw.TuningSliders((0.5, 0.5), (0.5, 0.45),
@@ -105,7 +105,7 @@ def generateMainTab(name):
 def main():
     enableSerial = True
 
-    if enableSerial: serialComm = SerialComm("COM6", 460800)
+    if enableSerial: serialComm = SerialComm("COM4", 460800)
     if enableSerial: serialComm.send_data(Command(CommandType.SetCurrentLimit_mA, 10000))
     controlManager = pw.ControlManager()
 
@@ -132,7 +132,7 @@ def main():
             if (didGetData):
                 data: SensorData
 
-                texts = [f"{data.iteration}", f"{data.timestamp_ms}", f"{data.position}", f"{data.velocity}", f"{data.torque}", f"{data.current}", f"{data.loopTimeMotor}", f"{data.loopTimeSerial}"]
+                texts = [f"{data.iteration}", f"{data.timestamp_ms}", f"{data.position}", f"{data.velocity}", f"{data.torque}", f"{data.current}", f"{data.voltage}", f"{data.loopTimeMotor}", f"{data.loopTimeSerial}"]
                 controlManager["PositiontextBoxesData"].setTexts(texts)
                 controlManager["VelocitytextBoxesData"].setTexts(texts)
                 controlManager["TorquetextBoxesData"].setTexts(texts)
