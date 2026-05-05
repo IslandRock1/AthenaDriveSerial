@@ -44,5 +44,8 @@ enum CommandType {
 	PositionKi = 11,
 	PositionKd = 12,
 	DrivingModeCommand = 13,
-	SetCurrentLimit = 14
+	CurrentLimit = 14,
+	NumPolePairs = 15,
+	OpenLoopSpeed = 16,
+	OpenLoopStrength = 17
 };
