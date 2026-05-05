@@ -3,3 +3,6 @@ target_link_libraries(SimpleExample PRIVATE SerialComm::SerialComm)
 
 add_executable(ClaudeExample ClaudeExample.cpp)
 target_link_libraries(ClaudeExample PRIVATE SerialComm::SerialComm)
+
+add_executable(PositionExample PositionExample.cpp)
+target_link_libraries(PositionExample PRIVATE SerialComm::SerialComm)
