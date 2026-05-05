@@ -103,3 +103,111 @@ void SerialComm::update() {
 		}
 	}
 }
+
+// Torque control
+void SerialComm::setTorqueSetpoint(float value) {
+    _cmd.command_type = CommandType::TorqueSetpoint;
+    _cmd.value1 = value;
+    sendData(_cmd);
+}
+
+void SerialComm::setTorqueKp(float value) {
+    _cmd.command_type = CommandType::TorqueKp;
+    _cmd.value1 = value;
+    sendData(_cmd);
+}
+
+void SerialComm::setTorqueKi(float value) {
+    _cmd.command_type = CommandType::TorqueKi;
+    _cmd.value1 = value;
+    sendData(_cmd);
+}
+
+void SerialComm::setTorqueKd(float value) {
+    _cmd.command_type = CommandType::TorqueKd;
+    _cmd.value1 = value;
+    sendData(_cmd);
+}
+
+// Velocity control
+void SerialComm::setVelocitySetpoint(float value) {
+    _cmd.command_type = CommandType::VelocitySetpoint;
+    _cmd.value1 = value;
+    sendData(_cmd);
+}
+
+void SerialComm::setVelocityKp(float value) {
+    _cmd.command_type = CommandType::VelocityKp;
+    _cmd.value1 = value;
+    sendData(_cmd);
+}
+
+void SerialComm::setVelocityKi(float value) {
+    _cmd.command_type = CommandType::VelocityKi;
+    _cmd.value1 = value;
+    sendData(_cmd);
+}
+
+void SerialComm::setVelocityKd(float value) {
+    _cmd.command_type = CommandType::VelocityKd;
+    _cmd.value1 = value;
+    sendData(_cmd);
+}
+
+// Position control
+void SerialComm::setPositionSetpoint(float value) {
+    _cmd.command_type = CommandType::PositionSetpoint;
+    _cmd.value1 = value;
+    sendData(_cmd);
+}
+
+void SerialComm::setPositionKp(float value) {
+    _cmd.command_type = CommandType::PositionKp;
+    _cmd.value1 = value;
+    sendData(_cmd);
+}
+
+void SerialComm::setPositionKi(float value) {
+    _cmd.command_type = CommandType::PositionKi;
+    _cmd.value1 = value;
+    sendData(_cmd);
+}
+
+void SerialComm::setPositionKd(float value) {
+    _cmd.command_type = CommandType::PositionKd;
+    _cmd.value1 = value;
+    sendData(_cmd);
+}
+
+// System / mode
+void SerialComm::setDrivingMode(int32_t value) {
+    _cmd.command_type = CommandType::DrivingModeCommand;
+    _cmd.value0 = value;
+    sendData(_cmd);
+}
+
+// Limits / configuration
+void SerialComm::setCurrentLimit(int32_t value) {
+    _cmd.command_type = CommandType::CurrentLimit;
+    _cmd.value0 = value;
+    sendData(_cmd);
+}
+
+void SerialComm::setNumPolePairs(int32_t value) {
+    _cmd.command_type = CommandType::NumPolePairs;
+    _cmd.value0 = value;
+    sendData(_cmd);
+}
+
+// Open loop
+void SerialComm::setOpenLoopSpeed(float value) {
+    _cmd.command_type = CommandType::OpenLoopSpeed;
+    _cmd.value1 = value;
+    sendData(_cmd);
+}
+
+void SerialComm::setOpenLoopStrength(float value) {
+    _cmd.command_type = CommandType::OpenLoopStrength;
+    _cmd.value1 = value;
+    sendData(_cmd);
+}

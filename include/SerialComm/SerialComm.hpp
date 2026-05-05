@@ -20,13 +20,45 @@ public:
 	bool getData(SensorData &data);
 	unsigned long long getNumRemainingCommands();
 
+	// Torque control
+	void setTorqueSetpoint(float value);
+	void setTorqueKp(float value);
+	void setTorqueKi(float value);
+	void setTorqueKd(float value); // Not in use
+
+	// Velocity control
+	void setVelocitySetpoint(float value);
+	void setVelocityKp(float value);
+	void setVelocityKi(float value);
+	void setVelocityKd(float value);
+
+	// Position control
+	void setPositionSetpoint(float value);
+	void setPositionKp(float value);
+	void setPositionKi(float value);
+	void setPositionKd(float value);
+
+	// System / mode
+	void setDrivingMode(int32_t value);
+
+	// Limits / configuration
+	void setCurrentLimit(int32_t value);
+	void setNumPolePairs(int32_t value);
+
+	// Open loop
+	void setOpenLoopSpeed(float value);
+	void setOpenLoopStrength(float value);
+
 private:
+	Command _cmd;
+
 	static constexpr uint8_t SYNC_BYTE_0 = 0xAA;
 	static constexpr uint8_t SYNC_BYTE_1 = 0x55;
 
 	void readData();
 	void writeData();
 	void update();
+
 	std::mutex _incomingMutex;
 	std::mutex _outgoingMutex;
 	std::jthread _serialThread;
