@@ -21,7 +21,7 @@ target_include_directories(SerialComm
 target_compile_features(SerialComm PUBLIC cxx_std_20)
 add_library(SerialComm::SerialComm ALIAS SerialComm)
 
-option(SERIALCOMM_BUILD_PYTHON "Build python bindings" ON)
+option(SERIALCOMM_BUILD_PYTHON "Build python bindings" OFF)
 if(SERIALCOMM_BUILD_PYTHON)
     add_subdirectory(bindings/python)
 endif()
