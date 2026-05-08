@@ -35,7 +35,8 @@ PYBIND11_MODULE(SerialCommPython, m) {
 		.value("Disabled", DrivingMode::Disabled)
 		.value("Torque", DrivingMode::Torque)
 		.value("Velocity", DrivingMode::Velocity)
-		.value("Position", DrivingMode::Position);
+		.value("Position", DrivingMode::Position)
+		.value("OpenLoop", DrivingMode::OpenLoop);
 
 
 	py::enum_<CommandType>(m, "CommandType")
@@ -53,7 +54,10 @@ PYBIND11_MODULE(SerialCommPython, m) {
 		.value("PositionKi", CommandType::PositionKi)
 		.value("PositionKd", CommandType::PositionKd)
 		.value("DrivingModeCommand", CommandType::DrivingModeCommand)
-		.value("SetCurrentLimit_mA", CommandType::SetCurrentLimit);
+		.value("CurrentLimit", CommandType::CurrentLimit)
+		.value("NumPolePairs", CommandType::NumPolePairs)
+		.value("OpenLoopSpeed", CommandType::OpenLoopSpeed)
+		.value("OpenLoopStrength", CommandType::OpenLoopStrength);
 
 	py::class_<SerialComm>(m, "SerialComm")
 		.def(py::init<const std::string&, uint32_t, uint32_t>(),
