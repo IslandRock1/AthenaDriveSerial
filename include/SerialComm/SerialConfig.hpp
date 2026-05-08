@@ -26,7 +26,8 @@ enum DrivingMode {
 	Disabled = 0,
 	Torque = 1,
 	Velocity = 2,
-	Position = 3
+	Position = 3,
+	OpenLoop = 4
 };
 
 enum CommandType {
