@@ -5,6 +5,56 @@ import utils.plotUtils as pltUtil
 from SerialCommPython import SerialComm, SensorData, Command, CommandType, DrivingMode
 import pg_widgets as pw
 
+def save_data_to_txt(
+        filename,
+        positionPoints,
+        velocityPoints,
+        acceleraPoints,
+        phaseAPoints,
+        phaseBPoints,
+        phaseCPoints,
+        motorLoopTime,
+        commmLoopTime,
+        timestamps
+):
+    # Find the longest list length
+    max_len = max(
+        len(positionPoints),
+        len(velocityPoints),
+        len(acceleraPoints),
+        len(phaseAPoints),
+        len(phaseBPoints),
+        len(phaseCPoints),
+        len(motorLoopTime),
+        len(commmLoopTime),
+        len(timestamps)
+    )
+
+    with open(filename, "w") as f:
+        # Write header
+        f.write(
+            "timestamp\tposition\tvelocity\tacceleration\t"
+            "phaseA\tphaseB\tphaseC\tmotorLoopTime\tcommLoopTime\n"
+        )
+
+        # Write data rows
+        for i in range(max_len):
+            row = [
+                timestamps[i] if i < len(timestamps) else "",
+                positionPoints[i] if i < len(positionPoints) else "",
+                velocityPoints[i] if i < len(velocityPoints) else "",
+                acceleraPoints[i] if i < len(acceleraPoints) else "",
+                phaseAPoints[i] if i < len(phaseAPoints) else "",
+                phaseBPoints[i] if i < len(phaseBPoints) else "",
+                phaseCPoints[i] if i < len(phaseCPoints) else "",
+                motorLoopTime[i] if i < len(motorLoopTime) else "",
+                commmLoopTime[i] if i < len(commmLoopTime) else "",
+            ]
+
+            f.write("\t".join(map(str, row)) + "\n")
+
+    print(f"Data saved to {filename}")
+
 def getPlotPos():
     plotPos = pw.Plot((0.0, 0.0), (0.5, 0.33))
     plotPos.setTitle("Position")
@@ -47,15 +97,15 @@ def getTuningSliders(name):
     current_vals = [0.0] * 4
     if (name == "Position"):
         upper_bounds = [0.0, 0.0, 0.0, 0.0]
-        lower_bounds = [3.1415926 / 2.0, 5.0, 0.0, 0.0]
+        lower_bounds = [100, 5.0, 0.0001, 0.0]
         current_vals = [0.0, 0.0, 0.0, 0.0]
     elif (name == "Velocity"):
-        upper_bounds = [-150.0, 0.0, 0.0, 0.0]
-        lower_bounds = [150.0, 0.1, 0.000001, 0.0]
+        upper_bounds = [-50.0, 0.0, 0.0, 0.0]
+        lower_bounds = [50.0, 5.0, 0.00001, 0.0]
         current_vals = [0.0, 0.0, 0.0, 0.0]
     elif (name == "Torque"):
-        upper_bounds = [-1.0, 0.0, 0.0, 0.0]
-        lower_bounds = [1.0, 0.005, 0.0, 0.0]
+        upper_bounds = [-30.0, 0.0, 0.0, 0.0]
+        lower_bounds = [30.0, 0.005, 0.0, 0.0]
         current_vals = [0.0, 0.0, 0.0, 0.0]
     elif (name == "OpenLoop"):
         labels = ["Speed", "Strength"]
@@ -110,10 +160,10 @@ def generateMainTab(name):
     return gr
 
 def main():
-    enableSerial = False
+    enableSerial = True
 
-    if enableSerial: serialComm = SerialComm("COM4", 460800)
-    if enableSerial: serialComm.send_data(Command(CommandType.SetCurrentLimit_mA, 10000))
+    if enableSerial: serialComm = SerialComm("COM6", 460800)
+    if enableSerial: serialComm.send_data(Command(CommandType.CurrentLimit, 3000))
     controlManager = pw.ControlManager()
 
     mainTab = generateMainTab("Main")
@@ -158,6 +208,8 @@ def main():
                 motorLoopTime.append(data.loopTimeMotor)
                 commmLoopTime.append(data.loopTimeSerial)
                 timestamps.append(perf_counter())
+
+                # print(f"Ia: {data.Ia} | Ib: {data.Ib} | Ic: {data.Ic}")
 
                 texts = [f"{data.iteration}", f"{data.timestamp_ms}", f"{data.position}", f"{data.velocity}", f"{data.torque}", f"{data.current}", f"{data.voltage}", f"{data.loopTimeMotor}", f"{data.loopTimeSerial}"]
                 controlManager["PositiontextBoxesData"].setTexts(texts)
@@ -227,5 +279,8 @@ def main():
     pltUtil.plot_encoder_state_estimation(timestamps, positionPoints, velocityPoints, acceleraPoints)
     pltUtil.plot_phase_currents(timestamps, phaseAPoints, phaseBPoints, phaseCPoints)
     pltUtil.plot_loop_times(timestamps, motorLoopTime, commmLoopTime)
+
+    save_data_to_txt(f"Test{perf_counter()}", positionPoints, velocityPoints, acceleraPoints,
+                     phaseAPoints, phaseBPoints, phaseCPoints, motorLoopTime, commmLoopTime, timestamps)
 
 if __name__ == "__main__": main()
