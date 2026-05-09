@@ -1,6 +1,7 @@
 
 from time import perf_counter, sleep
 
+import utils.plotUtils as pltUtil
 from SerialCommPython import SerialComm, SensorData, Command, CommandType, DrivingMode
 import pg_widgets as pw
 
@@ -132,12 +133,27 @@ def main():
         prevValues[name] = value
         return True
 
+    positionPoints = []
+    velocityPoints = []
+    acceleraPoints = []
+    phaseAPoints = []
+    phaseBPoints = []
+    phaseCPoints = []
+    timestamps = []
+
     while controlManager.isRunning():
 
         if enableSerial:
             didGetData, data = serialComm.get_data()
             if (didGetData):
                 data: SensorData
+                positionPoints.append(data.position)
+                velocityPoints.append(data.velocity)
+                acceleraPoints.append(data.acceleration)
+                phaseAPoints.append(data.Ia)
+                phaseBPoints.append(data.Ib)
+                phaseCPoints.append(data.Ic)
+                timestamps.append(perf_counter())
 
                 texts = [f"{data.iteration}", f"{data.timestamp_ms}", f"{data.position}", f"{data.velocity}", f"{data.torque}", f"{data.current}", f"{data.voltage}", f"{data.loopTimeMotor}", f"{data.loopTimeSerial}"]
                 controlManager["PositiontextBoxesData"].setTexts(texts)
@@ -202,5 +218,9 @@ def main():
         while (serialComm.num_remaining_commands() > 0):
             sleep(0.1)
     print("Motor successfully disabled")
+
+    print("Creating plots.")
+    pltUtil.plot_encoder_state_estimation(timestamps, positionPoints, velocityPoints, acceleraPoints)
+    pltUtil.plot_phase_currents(timestamps, phaseAPoints, phaseBPoints, phaseCPoints)
 
 if __name__ == "__main__": main()
