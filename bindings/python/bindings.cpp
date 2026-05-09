@@ -16,7 +16,7 @@ PYBIND11_MODULE(SerialCommPython, m) {
 		.def_readwrite("timestamp_ms", &SensorData::timestamp_ms)
 		.def_readwrite("position", &SensorData::position)
 		.def_readwrite("velocity", &SensorData::velocity)
-		.def_readwrite("Acceleration", &SensorData::acceleration)
+		.def_readwrite("acceleration", &SensorData::acceleration)
 		.def_readwrite("torque", &SensorData::torque)
 		.def_readwrite("current", &SensorData::current)
 		.def_readwrite("voltage", &SensorData::voltage)
