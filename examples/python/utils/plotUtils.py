@@ -90,10 +90,12 @@ def plot_loop_times(
         timestamps,
         motor_loop_time,
         label="Motor Loop Time",
+        color="tab:blue"
     )
 
     ax1.set_xlabel("Time [s]")
-    ax1.set_ylabel("Motor Loop Time [us]")
+    ax1.set_ylabel("Motor Loop Time [us]", color="tab:blue")
+    ax1.tick_params(axis="y", labelcolor="tab:blue")
     ax1.grid(True)
 
     # Right y-axis: communication loop
@@ -103,9 +105,11 @@ def plot_loop_times(
         timestamps,
         communication_loop_time,
         label="Communication Loop Time",
+        color="tab:red"
     )
 
-    ax2.set_ylabel("Communication Loop Time [us]")
+    ax2.set_ylabel("Communication Loop Time [us]", color="tab:red")
+    ax2.tick_params(axis="y", labelcolor="tab:red")
 
     # Combined legend
     lines = line1 + line2
