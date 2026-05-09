@@ -75,3 +75,43 @@ def plot_phase_currents(
 
     plt.tight_layout()
     plt.show()
+
+def plot_loop_times(
+        timestamps,
+        motor_loop_time,
+        communication_loop_time,
+        title="Control Loop Timing"
+):
+
+    fig, ax1 = plt.subplots(figsize=(10, 5))
+
+    # Left y-axis: motor loop
+    line1 = ax1.plot(
+        timestamps,
+        motor_loop_time,
+        label="Motor Loop Time",
+    )
+
+    ax1.set_xlabel("Time [s]")
+    ax1.set_ylabel("Motor Loop Time [us]")
+    ax1.grid(True)
+
+    # Right y-axis: communication loop
+    ax2 = ax1.twinx()
+
+    line2 = ax2.plot(
+        timestamps,
+        communication_loop_time,
+        label="Communication Loop Time",
+    )
+
+    ax2.set_ylabel("Communication Loop Time [us]")
+
+    # Combined legend
+    lines = line1 + line2
+    labels = [line.get_label() for line in lines]
+    ax1.legend(lines, labels)
+
+    plt.title(title)
+    plt.tight_layout()
+    plt.show()

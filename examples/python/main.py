@@ -139,6 +139,8 @@ def main():
     phaseAPoints = []
     phaseBPoints = []
     phaseCPoints = []
+    motorLoopTime = []
+    commmLoopTime = []
     timestamps = []
 
     while controlManager.isRunning():
@@ -153,6 +155,8 @@ def main():
                 phaseAPoints.append(data.Ia)
                 phaseBPoints.append(data.Ib)
                 phaseCPoints.append(data.Ic)
+                motorLoopTime.append(data.loopTimeMotor)
+                commmLoopTime.append(data.loopTimeSerial)
                 timestamps.append(perf_counter())
 
                 texts = [f"{data.iteration}", f"{data.timestamp_ms}", f"{data.position}", f"{data.velocity}", f"{data.torque}", f"{data.current}", f"{data.voltage}", f"{data.loopTimeMotor}", f"{data.loopTimeSerial}"]
@@ -222,5 +226,6 @@ def main():
     print("Creating plots.")
     pltUtil.plot_encoder_state_estimation(timestamps, positionPoints, velocityPoints, acceleraPoints)
     pltUtil.plot_phase_currents(timestamps, phaseAPoints, phaseBPoints, phaseCPoints)
+    pltUtil.plot_loop_times(timestamps, motorLoopTime, commmLoopTime)
 
 if __name__ == "__main__": main()
