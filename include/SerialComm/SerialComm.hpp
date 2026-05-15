@@ -49,6 +49,8 @@ public:
 	void setOpenLoopSpeed(float value);
 	void setOpenLoopStrength(float value);
 
+	void setTorqueSign(float value);
+
 private:
 	Command _cmd;
 

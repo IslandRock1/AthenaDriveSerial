@@ -34,6 +34,13 @@ SerialComm::~SerialComm() {
 
 void SerialComm::sendData(const Command &cmd) {
 	std::lock_guard<std::mutex> lock(_outgoingMutex);
+	if (_commands.size() > 0) {
+		if (_commands.back().command_type == cmd.command_type) {
+			_commands.back().value1 = cmd.value1;
+			_commands.back().value0 = cmd.value0;
+			return;
+		}
+	}
 	_commands.push(cmd);
 }
 
@@ -210,4 +217,10 @@ void SerialComm::setOpenLoopStrength(float value) {
     _cmd.command_type = CommandType::OpenLoopStrength;
     _cmd.value1 = value;
     sendData(_cmd);
+}
+
+void SerialComm::setTorqueSign(float value) {
+	_cmd.command_type = CommandType::TorqueSign;
+	_cmd.value1 = value;
+	sendData(_cmd);
 }

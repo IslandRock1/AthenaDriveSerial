@@ -52,5 +52,6 @@ enum CommandType {
 	CurrentLimit = 14,
 	NumPolePairs = 15,
 	OpenLoopSpeed = 16,
-	OpenLoopStrength = 17
+	OpenLoopStrength = 17,
+	TorqueSign = 18
 };
