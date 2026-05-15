@@ -96,8 +96,8 @@ def getTuningSliders(name):
     lower_bounds = [0.0] * 4
     current_vals = [0.0] * 4
     if (name == "Position"):
-        upper_bounds = [0.0, 0.0, 0.0, 0.0]
-        lower_bounds = [100, 5.0, 0.0001, 0.0]
+        upper_bounds = [-3.14, 0.0, 0.0, 0.0]
+        lower_bounds = [3.14, 5.0, 0.0001, 0.0]
         current_vals = [0.0, 0.0, 0.0, 0.0]
     elif (name == "Velocity"):
         upper_bounds = [-50.0, 0.0, 0.0, 0.0]
@@ -162,8 +162,10 @@ def generateMainTab(name):
 def main():
     enableSerial = True
 
-    if enableSerial: serialComm = SerialComm("COM6", 460800)
+    if enableSerial: serialComm = SerialComm("COM5", 460800)
+    if enableSerial: serialComm.send_data(Command(CommandType.NumPolePairs, 15, 15))
     if enableSerial: serialComm.send_data(Command(CommandType.CurrentLimit, 3000))
+    if enableSerial: serialComm.send_data(Command(CommandType.NumPolePairs, 15, 15))
     controlManager = pw.ControlManager()
 
     mainTab = generateMainTab("Main")
